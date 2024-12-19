@@ -139,3 +139,26 @@
   delay: 5
   until: r_group_user.status == 201
   loop: "{{ r_users.json }}"
+
+- name: Create platform engineer (PE) user
+  ansible.builtin.uri:
+    url: https://{{ ocp4_workload_redhat_developer_hub_gitlab_host }}/api/v4/users
+    method: POST
+    body_format: form-urlencoded
+    body:
+      admin: false
+      email: pe@demo.redhat.com
+      public_email: pe@demo.redhat.com
+      skip_confirmation: true
+      username: pe
+      password: "{{ ocp4_workload_redhat_developer_hub_common_password }}"
+      name: Platform Engineer
+    headers:
+      PRIVATE-TOKEN: "{{ ocp4_workload_redhat_developer_hub_gitlab_root_token }}"
+    validate_certs: false
+    status_code: 201
+  register: r_user
+  retries: 100
+  delay: 5
+  until: r_user.status == 201
+  loop: '{{ "{{" }} range(1, {{ $.Values.gitlab.users.count }} + 1) | list {{ "}}" }}'
